@@ -1,0 +1,26 @@
+# Stage 2: Install Tensorflow
+FROM arm32v7/xenial:python
+
+# Fix libstdc++.so.6: version `GLIBCXX_3.4.22' not found
+# when import tensorflow
+# https://github.com/lhelontra/tensorflow-on-arm/issues/13
+RUN sudo apt-get install -y software-properties-common
+RUN sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
+    sudo apt-get update && \
+    sudo apt-get -y install gcc-4.9 && \
+    sudo apt-get -y upgrade libstdc++6
+
+# https://github.com/lhelontra/tensorflow-on-arm/releases/download/v1.9.0/tensorflow-1.9.0-cp35-none-linux_armv7l.whl
+ENV TF_VERSION 1.9.0
+ENV TENSORFLOW tensorflow-${TF_VERSION}-cp35-none-linux_armv7l.whl
+# RUN wget https://github.com/lhelontra/tensorflow-on-arm/releases/download/v${TF_VERSION}/${TENSORFLOW}
+
+# Copy over the Tensorflow wheel file
+COPY ./installation/${TENSORFLOW} .
+
+# Install tensorflow
+RUN pip3 install ./${TENSORFLOW}
+RUN rm -rf /${TENSORFLOW}
+
+# Do clean jobs
+RUN sudo apt-get clean && sudo apt-get autoremove

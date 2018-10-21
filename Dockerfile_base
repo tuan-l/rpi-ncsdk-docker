@@ -1,0 +1,44 @@
+# Stage 1: build base image with prequisite packages
+FROM arm32v7/ubuntu:xenial
+
+# Enable QEMU for ARM to build ARM image on X86 machine
+COPY qemu-arm-static /usr/bin/
+
+# Install necessary packages for the installer
+# ENV DEBIAN_FRONTEND noninteractive
+# RUN dpkg-reconfigure debconf
+# RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+RUN apt-get update && \
+    apt-get dist-upgrade && \
+    apt-get autoremove
+RUN apt-get install update-manager-core -y
+
+RUN apt-get install --fix-missing -y \
+    apt-utils \
+    lsb-release \
+    build-essential \
+    sed \
+    sudo \
+    tar \
+    udev \
+    wget \
+    libusb-1.0-0-dev \
+    python-dev \
+    python3-dev \
+    libatlas-base-dev \
+    libopenblas-dev \
+    apt-transport-https \
+    usbutils
+
+# Fix debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used)
+# https://nesterof.com/blog/2017/09/21/debconf-no-usable-dialog-like-program-is-installed-so-the-dialog-based-frontend-cannot-be-used/
+# RUN sudo apt-get install dialog whiptail -y
+
+# Run the installer
+RUN wget https://bootstrap.pypa.io/get-pip.py
+RUN python2 get-pip.py && \
+    python3 get-pip.py
+
+# Do clean jobs
+RUN sudo apt-get clean && sudo apt-get autoremove

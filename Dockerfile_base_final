@@ -1,0 +1,25 @@
+# Stage 3: Install NCSDK
+FROM arm32v7/xenial:tensorflow
+
+# Copy over the NCSDK
+COPY ./ncsdk /ncsdk
+
+# install ncsdk
+WORKDIR /ncsdk
+RUN make install
+
+# Enable NoPrivileges mode for NCS devices
+WORKDIR /ncsdk/api/src
+RUN sudo make get_mvcmd && \
+    sudo make basicinstall NO_BOOT=yes NO_RESET=yes && \
+    sudo make pythoninstall
+
+WORKDIR /
+
+# Do clean jobs
+RUN sudo apt-get clean && sudo apt-get autoremove
+
+# Expose some newly-created images information
+RUN echo `python3 -c "from mvnc import mvncapi; print('NCAPI Version:', mvncapi.global_get_option(mvncapi.GlobalOption.RO_API_VERSION))"`
+RUN lsb_release -a
+RUN uname -a
