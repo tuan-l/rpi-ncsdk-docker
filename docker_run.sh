@@ -1,20 +1,5 @@
-#!/bin/bash
-all_devices=$(lsusb -d 03e7:  | cut -d" " -f2,4 | cut -d":" -f1 |  sed 's/ /\//' | sed 's/^/\/dev\/bus\/usb\//')
-devices_number=$(lsusb -d 03e7:  | wc -l)
-
-if [ ${devices_number} -eq 0 ] ; then
-    echo "No devices connected!"
-    exit 0
-fi
-
-docker_cmd="docker run --net=host"
-
-for dev in $all_devices
-do
-    docker_cmd="$docker_cmd --device=$dev"
-done
-
-docker_cmd="$docker_cmd  --name ncsdk -i -t arm32v7/xenial:ncsdk /bin/bash"
+# Run interactive ncsdk docker image for utilizing
+docker_cmd="docker run --net=host -v /dev:/dev:shared --name ncsdk -i -t arm32v7/xenial:ncsdk /bin/bash"
 
 echo $docker_cmd
 eval $docker_cmd
