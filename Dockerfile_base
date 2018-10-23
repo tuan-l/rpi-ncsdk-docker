@@ -1,17 +1,22 @@
 # Stage 1: build base image with prequisite packages
 FROM arm32v7/ubuntu:xenial
+LABEL maintainer="tuanlm@greenglobal.vn"
 
 # Enable QEMU for ARM to build ARM image on X86 machine
-COPY qemu-arm-static /usr/bin/
+COPY ./qemu-arm-static /usr/bin/qemu-arm-static
+
+# http://bugs.python.org/issue19846
+# > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
+ENV LANG C.UTF-8
+
+# Set timezone
+ENV TIMEZONE Asia/Tokyo
+RUN echo ZONE="$TIMEZONE" > /etc/default/clock && cp "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
 
 # Install necessary packages for the installer
-# ENV DEBIAN_FRONTEND noninteractive
-# RUN dpkg-reconfigure debconf
-# RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-
-RUN apt-get update && \
-    apt-get dist-upgrade && \
-    apt-get autoremove
+RUN apt-get update -y && \
+    apt-get dist-upgrade -y && \
+    apt-get autoremove -y
 RUN apt-get install update-manager-core -y
 
 RUN apt-get install --fix-missing -y \
@@ -36,6 +41,9 @@ RUN apt-get install --fix-missing -y \
 # RUN sudo apt-get install dialog whiptail -y
 
 # Run the installer
+COPY pip.conf /etc/pip.conf
+# RUN pip install --upgrade pip
+# RUN pip install virtualenv virtualenv-tools
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python2 get-pip.py && \
     python3 get-pip.py

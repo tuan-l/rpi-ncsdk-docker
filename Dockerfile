@@ -1,5 +1,5 @@
 # Stage 1: build base image with prequisite packages
-FROM armv7/armhf-ubuntu:xenial as ncsdk_python
+FROM arm32v7/ubuntu:xenial as ncsdk_python
 LABEL maintainer="tuanlm@greenglobal.vn"
 
 # Enable QEMU for ARM to build ARM image on X86 machine

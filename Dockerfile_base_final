@@ -1,5 +1,6 @@
 # Stage 3: Install NCSDK
 FROM arm32v7/xenial:tensorflow
+LABEL maintainer="tuanlm@greenglobal.vn"
 
 # Copy over the NCSDK
 COPY ./ncsdk /ncsdk

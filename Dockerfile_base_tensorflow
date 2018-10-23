@@ -1,5 +1,6 @@
 # Stage 2: Install Tensorflow
 FROM arm32v7/xenial:python
+LABEL maintainer="tuanlm@greenglobal.vn"
 
 # Fix libstdc++.so.6: version `GLIBCXX_3.4.22' not found
 # when import tensorflow
@@ -10,17 +11,31 @@ RUN sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     sudo apt-get -y install gcc-4.9 && \
     sudo apt-get -y upgrade libstdc++6
 
-# https://github.com/lhelontra/tensorflow-on-arm/releases/download/v1.9.0/tensorflow-1.9.0-cp35-none-linux_armv7l.whl
+# Install Tensorflow and Scikit-image
 ENV TF_VERSION 1.9.0
 ENV TENSORFLOW tensorflow-${TF_VERSION}-cp35-none-linux_armv7l.whl
-# RUN wget https://github.com/lhelontra/tensorflow-on-arm/releases/download/v${TF_VERSION}/${TENSORFLOW}
+ENV SKI_VERSION 0.13.0
+ENV SK_IMAGE scikit_image-${SKI_VERSION}-cp35-cp35m-linux_armv7l.whl
+ENV NP_VERSION 1.13.0
+ENV NUMPY numpy-${NP_VERSION}-cp35-cp35m-linux_armv7l.whl
+
+# Copy over the Numpy wheel file
+COPY ./installation/${NUMPY} .
+# Install tensorflow
+RUN pip3 install ./${NUMPY}
+
+# Copy over the Scikit-image wheel file
+COPY ./installation/${SK_IMAGE} .
+# Install Scikit-image
+RUN pip3 install ./${SK_IMAGE}
 
 # Copy over the Tensorflow wheel file
 COPY ./installation/${TENSORFLOW} .
-
 # Install tensorflow
 RUN pip3 install ./${TENSORFLOW}
-RUN rm -rf /${TENSORFLOW}
 
 # Do clean jobs
+RUN rm -rf /${TENSORFLOW}
+RUN rm -rf /${SK_IMAGE}
+RUN rm -rf /${NUMPY}
 RUN sudo apt-get clean && sudo apt-get autoremove
