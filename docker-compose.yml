@@ -1,8 +1,19 @@
 version: '3'
 services:
-  app:
-    container_name: rpi-ncsdk-docker
-    restart: always
+  main:
     build: .
-    ports:
-      - '80:80'
+    container_name: rpi-ncsdk-docker
+    restart: on-failure
+    privileged: true
+    working_dir: /ncsdk
+    network_mode: host
+    volumes:
+      - '/dev/bus/usb/:dev/bus/usb/:ro'
+    command: >
+      python3
+      -c
+      'import tensorflow as tf;
+      import mvnc.mvncapi as mvnc;
+      print("TF_VERSION:", tf.__version__);
+      print("NCAPI Version:"", mvnc.global_get_option(mvnc.GlobalOption.RO_API_VERSION))'
+

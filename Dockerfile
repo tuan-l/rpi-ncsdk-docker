@@ -1,13 +1,22 @@
 # Stage 1: build base image with prequisite packages
-FROM arm32v7/ubuntu:xenial as ncsdk_python
+FROM armv7/armhf-ubuntu:xenial as ncsdk_python
+LABEL maintainer="tuanlm@greenglobal.vn"
 
 # Enable QEMU for ARM to build ARM image on X86 machine
-COPY ./qemu-arm-static /usr/bin/
+COPY ./qemu-arm-static /usr/bin/qemu-arm-static
+
+# http://bugs.python.org/issue19846
+# > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
+ENV LANG C.UTF-8
+
+# Set timezone
+ENV TIMEZONE Asia/Tokyo
+RUN echo ZONE="$TIMEZONE" > /etc/default/clock && cp "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
 
 # Install necessary packages for the installer
-RUN apt-get update && \
-    apt-get dist-upgrade && \
-    apt-get autoremove
+RUN apt-get update -y && \
+    apt-get dist-upgrade -y && \
+    apt-get autoremove -y
 RUN apt-get install update-manager-core -y
 
 RUN apt-get install --fix-missing -y \
@@ -32,6 +41,9 @@ RUN apt-get install --fix-missing -y \
 # RUN sudo apt-get install dialog whiptail -y
 
 # Run the installer
+COPY pip.conf /etc/pip.conf
+# RUN pip install --upgrade pip
+# RUN pip install virtualenv virtualenv-tools
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python2 get-pip.py && \
     python3 get-pip.py
@@ -43,6 +55,7 @@ RUN sudo apt-get clean && sudo apt-get autoremove
 
 # Stage 2: Install Tensorflow
 FROM ncsdk_python as ncsdk_tensorflow
+LABEL maintainer="tuanlm@greenglobal.vn"
 
 # Fix libstdc++.so.6: version `GLIBCXX_3.4.22' not found
 # when import tensorflow
@@ -53,25 +66,34 @@ RUN sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     sudo apt-get -y install gcc-4.9 && \
     sudo apt-get -y upgrade libstdc++6
 
-# https://github.com/lhelontra/tensorflow-on-arm/releases/download/v1.9.0/tensorflow-1.9.0-cp35-none-linux_armv7l.whl
+# Install Tensorflow and Scikit-image
 ENV TF_VERSION 1.9.0
 ENV TENSORFLOW tensorflow-${TF_VERSION}-cp35-none-linux_armv7l.whl
-# RUN wget https://github.com/lhelontra/tensorflow-on-arm/releases/download/v${TF_VERSION}/${TENSORFLOW}
+ENV SKI_VERSION 0.13.0
+ENV SK_IMAGE scikit_image-${SKI_VERSION}-cp35-cp35m-linux_armv7l.whl
+
+# Copy over the Scikit-image wheel file
+COPY ./installation/${SK_IMAGE} .
+
+# Install Scikit-image
+RUN pip3 install ./${SK_IMAGE}
 
 # Copy over the Tensorflow wheel file
 COPY ./installation/${TENSORFLOW} .
 
 # Install tensorflow
 RUN pip3 install ./${TENSORFLOW}
-RUN rm -rf /${TENSORFLOW}
 
 # Do clean jobs
+RUN rm -rf /${TENSORFLOW}
+RUN rm -rf /${SK_IMAGE}
 RUN sudo apt-get clean && sudo apt-get autoremove
 
 
 
 # Stage 3: Install NCSDK
 FROM ncsdk_tensorflow as ncsdk_final
+LABEL maintainer="tuanlm@greenglobal.vn"
 
 # Copy over the NCSDK
 COPY ./ncsdk /ncsdk
