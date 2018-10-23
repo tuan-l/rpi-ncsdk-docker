@@ -71,22 +71,28 @@ ENV TF_VERSION 1.9.0
 ENV TENSORFLOW tensorflow-${TF_VERSION}-cp35-none-linux_armv7l.whl
 ENV SKI_VERSION 0.13.0
 ENV SK_IMAGE scikit_image-${SKI_VERSION}-cp35-cp35m-linux_armv7l.whl
+ENV NP_VERSION 1.13.0
+ENV NUMPY numpy-${NP_VERSION}-cp35-cp35m-linux_armv7l.whl
+
+# Copy over the Numpy wheel file
+COPY ./installation/${NUMPY} .
+# Install tensorflow
+RUN pip3 install ./${NUMPY}
 
 # Copy over the Scikit-image wheel file
 COPY ./installation/${SK_IMAGE} .
-
 # Install Scikit-image
 RUN pip3 install ./${SK_IMAGE}
 
 # Copy over the Tensorflow wheel file
 COPY ./installation/${TENSORFLOW} .
-
 # Install tensorflow
 RUN pip3 install ./${TENSORFLOW}
 
 # Do clean jobs
 RUN rm -rf /${TENSORFLOW}
 RUN rm -rf /${SK_IMAGE}
+RUN rm -rf /${NUMPY}
 RUN sudo apt-get clean && sudo apt-get autoremove
 
 

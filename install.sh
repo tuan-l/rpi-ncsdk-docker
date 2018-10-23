@@ -10,6 +10,8 @@ rm -rf ncsdk/.git ncsdk/docs
 sed -i -e 's/INSTALL_CAFFE=yes/INSTALL_CAFFE=no/' ncsdk/ncsdk.conf
 sed -i -e 's/INSTALL_TENSORFLOW=yes/INSTALL_TENSORFLOW=no/' ncsdk/ncsdk.conf
 sed -i -e 's/#MAKE_NJOBS=1/MAKE_NJOBS='`nproc`'/' ncsdk/ncsdk.conf
+sed -i -e 's/--trusted-host files.pythonhosted.org//' ncsdk/install.sh
+
 
 # index-url for Python wheel
 PY_WHEEL=https://www.piwheels.hostedpi.com/simple
@@ -24,6 +26,12 @@ wget -O installation/${TENSORFLOW} -nc ${PY_WHEEL}/tensorflow/${TENSORFLOW}
 SKI_VERSION=0.13.0
 SK_IMAGE=scikit_image-${SKI_VERSION}-cp35-cp35m-linux_armv7l.whl
 wget -O installation/${SK_IMAGE} -nc ${PY_WHEEL}/scikit-image/${SK_IMAGE}
+
+# Download pre-built Numpy wheel
+NP_VERSION=1.13.0
+NUMPY=numpy-${NP_VERSION}-cp35-cp35m-linux_armv7l.whl
+wget -O installation/${NUMPY} -nc ${PY_WHEEL}/numpy/${NUMPY}
+
 
 
 # Build docker images
