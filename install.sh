@@ -35,8 +35,8 @@ wget -O installation/${NUMPY} -nc ${PY_WHEEL}/numpy/${NUMPY}
 
 
 # Build docker images
-# . ./docker_build.sh
-docker build --rm -f "Dockerfile" -t rpi-ncsdk:latest .
+. ./docker_build.sh
+# docker build --rm -f "Dockerfile" -t rpi-ncsdk:latest .
 
 # Run interactive ncsdk docker image for utilizing
 . ./docker_run.sh

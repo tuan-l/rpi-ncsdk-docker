@@ -6,10 +6,10 @@ LABEL maintainer="tuanlm@greenglobal.vn"
 # when import tensorflow
 # https://github.com/lhelontra/tensorflow-on-arm/issues/13
 RUN sudo apt-get install -y software-properties-common
-RUN sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
-    sudo apt-get update && \
-    sudo apt-get -y install gcc-4.9 && \
-    sudo apt-get -y upgrade libstdc++6
+# RUN sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
+#     sudo apt-get update && \
+#     sudo apt-get -y install gcc-4.9 && \
+#     sudo apt-get -y upgrade libstdc++6
 
 # Install Tensorflow and Scikit-image
 ENV TF_VERSION 1.9.0

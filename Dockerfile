@@ -1,5 +1,6 @@
 # Stage 1: build base image with prequisite packages
 FROM arm32v7/ubuntu:xenial as ncsdk_python
+
 LABEL maintainer="tuanlm@greenglobal.vn"
 
 # Enable QEMU for ARM to build ARM image on X86 machine
@@ -10,8 +11,8 @@ COPY ./qemu-arm-static /usr/bin/qemu-arm-static
 ENV LANG C.UTF-8
 
 # Set timezone
-ENV TIMEZONE Asia/Tokyo
-RUN echo ZONE="$TIMEZONE" > /etc/default/clock && cp "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
+# ENV TIMEZONE Asia/Tokyo
+# RUN echo ZONE="$TIMEZONE" > /etc/default/clock && cp "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
 
 # Install necessary packages for the installer
 RUN apt-get update -y && \
@@ -20,21 +21,14 @@ RUN apt-get update -y && \
 RUN apt-get install update-manager-core -y
 
 RUN apt-get install --fix-missing -y \
-    apt-utils \
-    lsb-release \
-    build-essential \
-    sed \
-    sudo \
-    tar \
-    udev \
-    wget \
-    libusb-1.0-0-dev \
-    python-dev \
-    python3-dev \
-    libatlas-base-dev \
-    libopenblas-dev \
-    apt-transport-https \
-    usbutils
+    apt-utils lsb-release build-essential apt-transport-https \
+    usbutils unzip coreutils curl git sed sudo tar udev wget \
+    automake cmake make libusb-1.0-0-dev libatlas-base-dev \
+    libopenblas-dev libprotobuf-dev libleveldb-dev libsnappy-dev \
+    libopencv-dev libhdf5-serial-dev libgflags-dev libgoogle-glog-dev \
+    liblmdb-dev libxslt-dev libxml2-dev libgraphviz-dev protobuf-compiler \
+    byacc swig3.0 graphviz gfortran python-dev python-numpy python-pip python3 \
+    python3-dev python3-numpy python3-scipy python3-yaml python3-nose python3-tk python3-pip
 
 # Fix debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used)
 # https://nesterof.com/blog/2017/09/21/debconf-no-usable-dialog-like-program-is-installed-so-the-dialog-based-frontend-cannot-be-used/
@@ -47,6 +41,9 @@ COPY pip.conf /etc/pip.conf
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python2 get-pip.py && \
     python3 get-pip.py
+
+RUN pip3 install -U "Cython>=0.23.4,<=0.26"
+RUN pip3 install "pygraphviz>=1.3.1" "graphviz>=0.4.10,<=0.8" "Enum34>=1.1.6" "networkx>=2.1,<=2.1"
 
 # Do clean jobs
 RUN sudo apt-get clean && sudo apt-get autoremove
@@ -61,10 +58,10 @@ LABEL maintainer="tuanlm@greenglobal.vn"
 # when import tensorflow
 # https://github.com/lhelontra/tensorflow-on-arm/issues/13
 RUN sudo apt-get install -y software-properties-common
-RUN sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
-    sudo apt-get update && \
-    sudo apt-get -y install gcc-4.9 && \
-    sudo apt-get -y upgrade libstdc++6
+# RUN sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
+#     sudo apt-get update && \
+#     sudo apt-get -y install gcc-4.9 && \
+#     sudo apt-get -y upgrade libstdc++6
 
 # Install Tensorflow and Scikit-image
 ENV TF_VERSION 1.9.0
