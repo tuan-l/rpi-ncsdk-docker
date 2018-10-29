@@ -2,9 +2,6 @@
 FROM arm32v7/ubuntu:xenial
 LABEL maintainer="tuanlm@greenglobal.vn"
 
-# Enable QEMU for ARM to build ARM image on X86 machine
-COPY ./qemu-arm-static /usr/bin/qemu-arm-static
-
 # http://bugs.python.org/issue19846
 # > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
 ENV LANG C.UTF-8
