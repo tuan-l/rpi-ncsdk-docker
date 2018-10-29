@@ -1,6 +1,5 @@
 # Stage 1: build base image with prequisite packages
 FROM arm32v7/ubuntu:xenial as ncsdk_python
-
 LABEL maintainer="tuanlm@greenglobal.vn"
 
 # Enable QEMU for ARM to build ARM image on X86 machine
@@ -9,10 +8,6 @@ COPY ./qemu-arm-static /usr/bin/qemu-arm-static
 # http://bugs.python.org/issue19846
 # > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
 ENV LANG C.UTF-8
-
-# Set timezone
-# ENV TIMEZONE Asia/Tokyo
-# RUN echo ZONE="$TIMEZONE" > /etc/default/clock && cp "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
 
 # Install necessary packages for the installer
 RUN apt-get update -y && \
@@ -29,10 +24,6 @@ RUN apt-get install --fix-missing -y \
     liblmdb-dev libxslt-dev libxml2-dev libgraphviz-dev protobuf-compiler \
     byacc swig3.0 graphviz gfortran python-dev python-numpy python-pip python3 \
     python3-dev python3-numpy python3-scipy python3-yaml python3-nose python3-tk python3-pip
-
-# Fix debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used)
-# https://nesterof.com/blog/2017/09/21/debconf-no-usable-dialog-like-program-is-installed-so-the-dialog-based-frontend-cannot-be-used/
-# RUN sudo apt-get install dialog whiptail -y
 
 # Run the installer
 COPY pip.conf /etc/pip.conf
