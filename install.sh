@@ -1,8 +1,4 @@
 #!/bin/bash
-
-# Setting up qemu for build arm image on x86 machine
-. ./qemu_install.sh
-
 # Prepare files for later use
 # Download ncsdk from github
 git clone https://github.com/movidius/ncsdk.git -b ncsdk2 --depth=1
@@ -11,7 +7,6 @@ sed -i -e 's/INSTALL_CAFFE=yes/INSTALL_CAFFE=no/' ncsdk/ncsdk.conf
 sed -i -e 's/INSTALL_TENSORFLOW=yes/INSTALL_TENSORFLOW=no/' ncsdk/ncsdk.conf
 sed -i -e 's/#MAKE_NJOBS=1/MAKE_NJOBS='`nproc`'/' ncsdk/ncsdk.conf
 sed -i -e 's/--trusted-host files.pythonhosted.org//' ncsdk/install.sh
-
 
 # index-url for Python wheel
 PY_WHEEL=https://www.piwheels.hostedpi.com/simple
@@ -31,8 +26,6 @@ wget -O installation/${SK_IMAGE} -nc ${PY_WHEEL}/scikit-image/${SK_IMAGE}
 NP_VERSION=1.13.0
 NUMPY=numpy-${NP_VERSION}-cp35-cp35m-linux_armv7l.whl
 wget -O installation/${NUMPY} -nc ${PY_WHEEL}/numpy/${NUMPY}
-
-
 
 # Build docker images
 . ./docker_build.sh
