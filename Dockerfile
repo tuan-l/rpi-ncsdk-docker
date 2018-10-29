@@ -96,18 +96,27 @@ COPY ./ncsdk /ncsdk
 WORKDIR /ncsdk
 RUN make install
 
+# Do clean jobs
+RUN sudo apt-get clean && sudo apt-get autoremove
+
 # Enable NoPrivileges mode for NCS devices
 WORKDIR /ncsdk/api/src
 RUN sudo make get_mvcmd && \
     sudo make basicinstall NO_BOOT=yes NO_RESET=yes && \
     sudo make pythoninstall
 
-WORKDIR /
-
-# Do clean jobs
-RUN sudo apt-get clean && sudo apt-get autoremove
+WORKDIR /ncsdk/extras/docker/ncs_boot_devices/
+RUN make all && make run
 
 # Expose some newly-created images information
 RUN echo `python3 -c "from mvnc import mvncapi; print('NCAPI Version:', mvncapi.global_get_option(mvncapi.GlobalOption.RO_API_VERSION))"`
 RUN lsb_release -a
 RUN uname -a
+
+# Do these steps to make ncsdk runable
+WORKDIR /ncsdk/extras/docker/ncs_boot_devices/
+ENTRYPOINT make clean \
+            && make run \
+            && cd /ncsdk/examples/apps/hello_ncs_py/ \
+            && make run \
+            && /bin/bash
